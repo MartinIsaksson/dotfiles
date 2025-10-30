@@ -1,0 +1,75 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "palette": {
+    "blue": "#5EA1FF",
+    "cyan": "#5DE4C7",
+    "gray": "#A0A1A7",
+    "green": "#86D19A",
+    "magenta": "#C099FF",
+    "red": "#FF6B6B"
+  },
+  "secondary_prompt": {
+    "template": "\u22ee ",
+    "foreground": "p:gray"
+  },
+  "transient_prompt": {
+    "template": "❯ ",
+    "foreground": "p:green"
+  },
+  "blocks": [
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "segments": [
+        {
+          "template": "{{ .UserName }}@{{ .HostName }} ",
+          "foreground": "p:blue",
+          "type": "session",
+          "style": "plain"
+        },
+        {
+          "template": "{{ .Path }} ",
+          "foreground": "p:cyan",
+          "type": "path",
+          "style": "plain"
+        },
+        {
+          "properties": {
+            "branch_icon": "\ue0a0 ",
+            "fetch_status": true,
+            "fetch_upstream_icon": true
+          },
+          "foreground": "p:magenta",
+          "type": "git",
+          "style": "plain"
+        }
+      ]
+    },
+    {
+      "type": "prompt",
+      "alignment": "right",
+      "segments": [
+        {
+          "properties": {
+            "time_format": "15:04:05"
+          },
+          "foreground": "p:gray",
+          "type": "time",
+          "style": "plain"
+        },
+        {
+          "properties": {
+            "always_enabled": false,
+            "display_symbol": true,
+            "error_color": "red"
+          },
+          "foreground": "p:red",
+          "type": "status",
+          "style": "plain"
+        }
+      ]
+    }
+  ],
+  "version": 3,
+  "final_space": true
+}
