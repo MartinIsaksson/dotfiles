@@ -165,9 +165,12 @@ if command -v ollama >/dev/null 2>&1; then
       echo "[i] Skipping model download.  You can pull models later with 'ollama pull <model>'."
       ;;
     *)
-      read -r -p "Enter the model name to pull (default: qwen3:8b): " model_name || true
-      model_name="${model_name:-qwen3:8b}"
-      echo "[*] Pulling model $model_name…"
+      model_name="qwen3:8b"
+      read -r -p "Enter the model name to pull (default: qwen3:8b): " input_model || input_model=""
+      if [[ -n "$input_model" ]]; then
+        model_name="$input_model"
+      fi
+      echo "[*] Pulling model $model_name..."
       if ollama pull "$model_name"; then
         echo "[ok] Model $model_name downloaded"
       else
