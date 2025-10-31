@@ -40,33 +40,42 @@ if command -v direnv >/dev/null 2>&1; then
   eval "$(direnv hook zsh)"
 fi
 
-# ------------------------------------------------------------------------------
-#  AIChat integration and completions
-#
-#  If the `aichat` CLI is installed this block adds two enhancements:
-#  1. An "intelligent completion" key binding on Alt+E (⌥‑E).  When pressed
-#     your current command is sent to `aichat -e` and replaced with the
-#     generated suggestion.  The function and key binding come from the
-#     upstream aichat shell integration script【795010549030277†L278-L287】.
-#  2. Tab completion for `aichat` itself.  The completion script is downloaded
-#     into `~/.config/aichat/completions/aichat.zsh` by the installation
-#     scripts.  It registers `_aichat` as the completion function and adds
-#     helpful suggestions when you type `aichat <TAB>`【795010549030277†L296-L299】.
+# --- AIChat: integration + completions + keybinds (Alt-E / Esc Esc) ---
 if command -v aichat >/dev/null 2>&1; then
-  # Source the key binding integration if present
+  # 1) Integration: prefer upstream script, else fallback widget
   if [[ -f "$HOME/.config/aichat/integration.zsh" ]]; then
     source "$HOME/.config/aichat/integration.zsh"
+  else
+    _aichat_zsh() {
+      if [[ -n "$BUFFER" ]]; then
+        local _old=$BUFFER
+        BUFFER+="⌛"; zle -I && zle redisplay
+        BUFFER="$(aichat -e "$_old")"
+        zle end-of-line
+      fi
+    }
+    zle -N _aichat_zsh
   fi
-  # Load completions.  We add the completions directory to fpath so zsh can
-  # find functions automatically.  Then we source the file to register the
-  # completion definitions.  Without this the `_aichat` function will not be
-  # defined.
-  if [[ -f "$HOME/.config/aichat/completions/aichat.zsh" ]]; then
+
+  # 2) Completions (if installer dropped them)
+  if [[ -d "$HOME/.config/aichat/completions" ]]; then
     fpath=("$HOME/.config/aichat/completions" $fpath)
-    # shellcheck disable=SC1090
-    source "$HOME/.config/aichat/completions/aichat.zsh"
+    # ensure compinit is available/initialized
+    autoload -Uz compinit 2>/dev/null || true
+    if ! command -v compinit >/dev/null 2>&1; then autoload -Uz compinit; fi
+    # run compinit only if not already done (skip noise)
+    [[ -n "${_comps_loaded:-}" ]] || { compinit -u 2>/dev/null && _comps_loaded=1; }
+    # some installs ship a concrete file too
+    [[ -f "$HOME/.config/aichat/completions/aichat.zsh" ]] && source "$HOME/.config/aichat/completions/aichat.zsh"
   fi
+
+  # 3) Key bindings: Alt-E (Esc+e) and Esc Esc
+  bindkey '^[e' _aichat_zsh      # Alt-E (Option+E) in most terminals
+  bindkey '\ee' _aichat_zsh      # Esc then 'e' (same as above in zle notation)
+  bindkey '\e\e' _aichat_zsh     # Esc Esc (for muscle memory)
 fi
+
+
 
 # NVM (Node Version Manager) initialisation
 export NVM_DIR="$HOME/.nvm"
