@@ -73,6 +73,14 @@ if command -v aichat >/dev/null 2>&1; then
   bindkey '^[e' _aichat_zsh      # Alt-E (Option+E) in most terminals
   bindkey '\ee' _aichat_zsh      # Esc then 'e' (same as above in zle notation)
   bindkey '\e\e' _aichat_zsh     # Esc Esc (for muscle memory)
+  
+  # macOS-specific: ensure Option key works as Alt (complementing terminal config)
+  if [[ "$OSTYPE" == darwin* ]]; then
+    bindkey '^[e' _aichat_zsh    # Ensure Option+E works on macOS
+    # Additional fallbacks for different terminal Option key interpretations
+    bindkey '∂' _aichat_zsh      # Option+d (if terminal sends this)
+    bindkey '´e' _aichat_zsh     # Some terminals may send this for Option+e
+  fi
 fi
 
 
